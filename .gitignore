@@ -17,3 +17,6 @@ cscope.*
 compile_commands.json
 .vscode/
 .cache/
+tags
+cscope.out
+cscope.files
