@@ -6,10 +6,23 @@
 
 static char digits[] = "0123456789ABCDEF";
 
+static char outbuf[1024];
+static int outidx;
+
 static void
 putc(int fd, char c)
 {
-  write(fd, &c, 1);
+  if (outidx < sizeof(outbuf))
+    outbuf[outidx++] = c;
+}
+
+static void
+flush(int fd)
+{
+  if (outidx > 0) {
+    write(fd, outbuf, outidx);
+    outidx = 0;
+  }
 }
 
 static void
@@ -121,8 +134,13 @@ fprintf(int fd, const char *fmt, ...)
 {
   va_list ap;
 
+  outidx = 0;
+
   va_start(ap, fmt);
   vprintf(fd, fmt, ap);
+  va_end(ap);
+
+  flush(fd);
 }
 
 void
@@ -130,6 +148,11 @@ printf(const char *fmt, ...)
 {
   va_list ap;
 
+  outidx = 0;
+
   va_start(ap, fmt);
   vprintf(1, fmt, ap);
+  va_end(ap);
+
+  flush(1);
 }

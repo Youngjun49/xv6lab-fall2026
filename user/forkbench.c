@@ -22,8 +22,10 @@ main(void)
       exit(0);
     }
     // 부모는 계속 돌아 다음 자식을 만든다
+   
   }
-
+ for (int i = 0; i < NCHILD; i++)
+    wait(0);
 
 
   printf("parent: all children done\n");
