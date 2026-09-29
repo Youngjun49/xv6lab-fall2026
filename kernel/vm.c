@@ -489,3 +489,28 @@ ismapped(pagetable_t pagetable, uint64 va)
   }
   return 0;
 }
+static void
+vmprint_level(pagetable_t pagetable, int level)
+{
+  for (int i = 0; i < 512; i++) {
+    pte_t pte = pagetable[i];
+
+    if ((pte & PTE_V) == 0)
+      continue;
+
+    for (int d = level; d <= 2; d++)
+      printk(" ..");
+
+    printk("%d: pte %p pa %p\n", i, (void *)pte, (void *)PTE2PA(pte));
+
+    if (level > 0)
+      vmprint_level((pagetable_t)PTE2PA(pte), level - 1);
+  }
+}
+
+void
+vmprint(pagetable_t pagetable)
+{
+  printk("page table %p\n", (void *)pagetable);
+  vmprint_level(pagetable, 2);
+}

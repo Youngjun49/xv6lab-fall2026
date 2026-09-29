@@ -110,3 +110,28 @@ sys_uptime(void)
   release(&tickslock);
   return xticks;
 }
+uint64
+sys_va2pa(void)
+{
+  uint64 va;
+  pte_t *pte;
+  struct proc *p = myproc();
+
+  argaddr(0, &va);
+
+  if (va >= MAXVA)
+    return 0;
+
+  printk("va %p : L2=%ld L1=%ld L0=%ld off=0x%lx\n",
+       (void *)va, PX(2, va), PX(1, va), PX(0, va), va & 0xFFF);
+       
+  pte = walk(p->pagetable, va, 0);
+
+  if (pte == 0 || (*pte & PTE_V) == 0)
+    return 0;
+
+  if ((*pte & PTE_U) == 0)
+    return 0;
+
+  return PTE2PA(*pte) + (va & 0xFFF);
+}
